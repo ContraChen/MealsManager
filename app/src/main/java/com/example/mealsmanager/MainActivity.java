@@ -48,6 +48,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    void get_image(Intent data){
+        String basePath = Environment.getExternalStorageDirectory().getPath();
+        String filePath = basePath + "/myImage";
+        Bundle bundle=data.getExtras();
+        Bitmap bitmap=(Bitmap) bundle.get("data");
+        FileOutputStream fos=null;
+        File file=new File(filePath);
+        file.mkdir();
+        String fileName=filePath+"/111.jpg";
+        try {
+            fos=new FileOutputStream(fileName);
+            bitmap.compress(Bitmap.CompressFormat.JPEG,100,fos);
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            try {
+                fos.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        pic.setImageBitmap(bitmap);
+    }
+
     void fun(){
         pic=findViewById(R.id.pic);
         Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //调用系统相机程序
@@ -57,29 +81,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        String basePath = Environment.getExternalStorageDirectory().getPath();
-        String filePath = basePath + "/myImage";
         if(requestCode==1){
             if(resultCode==RESULT_OK){
-                Bundle bundle=data.getExtras();
-                Bitmap bitmap=(Bitmap) bundle.get("data");
-                FileOutputStream fos=null;
-                File file=new File(filePath);
-                file.mkdir();
-                String fileName=filePath+"/111.jpg";
-                try {
-                    fos=new FileOutputStream(fileName);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG,100,fos);
-                }catch (Exception e){
-                    e.printStackTrace();
-                }finally {
-                    try {
-                        fos.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                pic.setImageBitmap(bitmap);
+                get_image(data);
             }
         }
     }
