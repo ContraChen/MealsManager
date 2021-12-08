@@ -25,7 +25,7 @@ public class MyDAO {
         return cursor.getCount();
     }
 
-    public void insertInfo(String meal,int cost,int heat,String date){  //插入记录
+    public void insertInfo(String meal,String cost,String heat,String date){  //插入记录
         myDb = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("meal", meal);
@@ -48,7 +48,7 @@ public class MyDAO {
             Log.i("myDbDemo", "数据未删除！");
     }
 
-    public void updateInfo(String meal,int cost,int heat,String date,String selId){  //修改记录
+    public void updateInfo(String meal,String cost,String heat,String date,String selId){  //修改记录
         //方法中的第三参数用于修改选定的记录
         ContentValues values = new ContentValues();
         values.put("meal", meal);

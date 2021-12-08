@@ -60,8 +60,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         myDAO = new MyDAO(this);  //创建数据库访问对象
         if(myDAO.getRecordsNumber()==0) {  //防止重复运行时重复插入记录
-            myDAO.insertInfo("rice",2,300,"1208");   //插入记录
-            myDAO.insertInfo("noodle",4,200,"1209"); //插入记录
+            myDAO.insertInfo("rice","2","300","1208");   //插入记录
+            myDAO.insertInfo("noodle","4","200","1209"); //插入记录
         }
         displayRecords();   //显示记录
     }
@@ -71,10 +71,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         listData = new ArrayList<Map<String,Object>>();
         Cursor cursor = myDAO.allQuery();
         while (cursor.moveToNext()){
-            int id=cursor.getInt(0);  //获取字段值
+            String id=cursor.getString(0);  //获取字段值
             String meal=cursor.getString(1);
-            int cost=cursor.getInt(2);
-            int heat=cursor.getInt(3);
+            String cost=cursor.getString(2);
+            String heat=cursor.getString(3);
             String date=cursor.getString(4);
             //int age=cursor.getInt(2);
 //            int age=cursor.getInt(cursor.getColumnIndex("age"));//推荐此种方式
@@ -110,8 +110,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if(selId!=null) {  //选择了列表项后，可以增加/删除/修改
             String p1 = et_ms.getText().toString().trim();
-            int p2 = Integer.parseInt(et_xf.getText().toString());
-            int p3 = Integer.parseInt(et_rl.getText().toString());
+            String p2 = et_xf.getText().toString().trim();
+            String p3 = et_rl.getText().toString().trim();
             String p4 = et_date.getText().toString().trim();
             switch (v.getId()){
                 case  R.id.ib_add:
@@ -145,10 +145,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String p2 = et_xf.getText().toString();
                 String p3 = et_rl.getText().toString();
                 String p4 = et_date.getText().toString();
-                if(p1.equals("")||p4.equals("")){  //要求输入了信息
-                    Toast.makeText(getApplicationContext(),"美食和日期都不能为空！",Toast.LENGTH_SHORT).show();
+                if(p1.equals("")){  //要求输入了信息
+                    Toast.makeText(getApplicationContext(),"美食输入不能为空！",Toast.LENGTH_SHORT).show();
                 }else{
-                    myDAO.insertInfo(p1, Integer.parseInt(p2),Integer.parseInt(p3),p4);  //第2参数转型
+                    if(p1.equals(""))p1="--";
+                    if(p2.equals(""))p2="--";
+                    if(p3.equals(""))p3="--";
+                    if(p4.equals(""))p4="--";
+                    myDAO.insertInfo(p1,p2,p3,p4);  //第2参数转型
                 }
             }
             else if (v.getId()==R.id.ib){
