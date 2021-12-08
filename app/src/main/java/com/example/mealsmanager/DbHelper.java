@@ -17,7 +17,7 @@ public class DbHelper extends SQLiteOpenHelper {
         //当表不存在时，创建表；第一字段为自增长类型
         db.execSQL("CREATE TABLE IF NOT EXISTS " +
                 TB_NAME + "( _id integer primary key autoincrement," +
-                "meal varchar," + "cost varchar,"+"heat varchar,"+"date varchar"+ ")");
+                "meal varchar," + "cost varchar,"+"heat varchar,"+"date varchar,"+"time varchar"+ ")");
     }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

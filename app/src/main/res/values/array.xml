@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="meals">
-        <item>早餐</item>
-        <item>中餐 </item>
-        <item>晚餐</item>
-        <item>夜宵</item>
-        <item>零食</item>
+        <item>Breakfast</item>
+        <item>Lunch</item>
+        <item>Supper</item>
+        <item>Snack</item>
     </string-array>
 </resources>
