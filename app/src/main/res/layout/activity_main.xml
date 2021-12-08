@@ -87,7 +87,6 @@
         android:layout_marginEnd="24dp"
         android:layout_marginRight="24dp"
         android:ems="10"
-        android:inputType="date"
         android:text="日期"
         android:textColor="#03A9F4"
         android:textSize="15dp"
