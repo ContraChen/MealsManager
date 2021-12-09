@@ -1,5 +1,6 @@
 package com.example.mealsmanager;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -24,5 +25,12 @@ public class DbHelper extends SQLiteOpenHelper {
         // 执行SQL命令
         db.execSQL("DROP TABLE IF EXISTS " + TB_NAME);
         onCreate(db);
+    }
+
+    /*
+    long主键能通过自增序列来赋
+    */
+    public static  long insert(SQLiteDatabase db, String TableName, ContentValues values){
+        return db.insert(TableName,null,values);
     }
 }

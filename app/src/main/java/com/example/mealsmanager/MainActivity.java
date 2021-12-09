@@ -4,10 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText et_rl;
     private EditText et_date;
     private  String selId=null;  //选择项id
+    byte[] image;
 
     String basePath = Environment.getExternalStorageDirectory().getPath();
     String filePath = basePath + "/myImage";
@@ -78,10 +81,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         myDAO = new MyDAO(this);  //创建数据库访问对象
         if(myDAO.getRecordsNumber()==0) {  //防止重复运行时重复插入记录
 //            Bitmap mymap = BitmapFactory.decodeFile(fileName);
-            Resources res = MainActivity.this.getResources();
-            Bitmap init_bmp= BitmapFactory.decodeResource(res, R.raw.header);
-            myDAO.insertInfo(init_bmp,"rice","2","300","1208","Lunch");   //插入记录
-            myDAO.insertInfo(init_bmp,"noodle","4","200","1209","Supper"); //插入记录
+//            Resources res = MainActivity.this.getResources();
+//            Bitmap init_bmp= BitmapFactory.decodeResource(res, R.raw.header);
+//            ByteArrayOutputStream ost = new ByteArrayOutputStream();
+//            init_bmp.compress(Bitmap.CompressFormat.PNG, 100, ost);
+//            byte[] header = ost.toByteArray();
+            byte[] header=null;
+            myDAO.insertInfo(header,"rice","2","300","1208","Lunch");   //插入记录
+            myDAO.insertInfo(header,"noodle","4","200","1209","Supper"); //插入记录
         }
         displayRecords();   //显示记录
     }
@@ -89,10 +96,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void displayRecords(){  //显示记录方法定义
         listView = (ListView)findViewById(R.id.lv_food);
         listData = new ArrayList<Map<String,Object>>();
+        Bitmap photo=null;
         Cursor cursor = myDAO.allQuery();
         while (cursor.moveToNext()){
             String id=cursor.getString(0);  //获取字段值
-            byte[] image=cursor.getBlob(cursor.getColumnIndex("image"));
+            byte[] myimage=cursor.getBlob(cursor.getColumnIndex("image"));
             String meal=cursor.getString(2);
             String cost=cursor.getString(3);
             String heat=cursor.getString(4);
@@ -101,11 +109,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //int age=cursor.getInt(2);
 //            int age=cursor.getInt(cursor.getColumnIndex("age"));//推荐此种方式
             listItem=new HashMap<String,Object>(); //必须在循环体里新建
-            Bitmap mymap = BitmapFactory.decodeFile(fileName);
-            ByteArrayOutputStream os=new ByteArrayOutputStream();
-            mymap.compress(Bitmap.CompressFormat.PNG,100,os);
+            if(null != image && image.length > 0){
+                photo = BitmapFactory.decodeByteArray(image, 0, image.length);
+                listItem.put("Image", photo);
+            }
+            else{
+                listItem.put("Image", R.mipmap.ic_launcher);
+            }
+//            Bitmap mymap = BitmapFactory.decodeFile(fileName);
+//            ByteArrayOutputStream os=new ByteArrayOutputStream();
+//            mymap.compress(Bitmap.CompressFormat.PNG,100,os);
             listItem.put("_id", id);  //第1参数为键名，第2参数为键值
-            listItem.put("image",image);
             listItem.put("meal", meal);
             listItem.put("cost", cost);
             listItem.put("heat", heat);
@@ -116,8 +130,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         listAdapter = new SimpleAdapter(this,
                 listData,
                 R.layout.listview, //自行创建的列表项布局
-                new String[]{"_id","meal","cost","heat","date","time"},
-                new int[]{R.id.l_id,R.id.l_meal,R.id.l_cost,R.id.l_heat,R.id.l_date,R.id.l_time});
+                new String[]{"_id","image","meal","cost","heat","date","time"},
+                new int[]{R.id.l_id,R.id.l_image,R.id.l_meal,R.id.l_cost,R.id.l_heat,R.id.l_date,R.id.l_time});
         listView.setAdapter(listAdapter);  //应用适配器
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {  //列表项监听
             @Override
@@ -142,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if(selId!=null) {  //选择了列表项后，可以增加/删除/修改
-            Bitmap mymap = BitmapFactory.decodeFile(fileName);
+//            Bitmap mymap = BitmapFactory.decodeFile(fileName);
             String p1 = et_ms.getText().toString().trim();
             String p2 = et_xf.getText().toString().trim();
             String p3 = et_rl.getText().toString().trim();
@@ -150,10 +164,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String p5 = sp.getSelectedItem().toString().trim();
             switch (v.getId()){
                 case  R.id.ib_add:
-                    myDAO.insertInfo(mymap,p1,p2,p3,p4,p5);
+                    myDAO.insertInfo(image,p1,p2,p3,p4,p5);
                     break;
                 case  R.id.ib_modify:
-                    myDAO.updateInfo(mymap,p1,p2,p3,p4,p5,selId);
+                    myDAO.updateInfo(image,p1,p2,p3,p4,p5,selId);
                     Toast.makeText(getApplicationContext(),"更新成功！",Toast.LENGTH_SHORT).show();
                     break;
                 case  R.id.ib_del:
@@ -176,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }else{  //未选择列表项
             if(v.getId()==R.id.ib_add) {  //单击添加按钮
-                Bitmap mymap = BitmapFactory.decodeFile(fileName);
+//                Bitmap mymap = BitmapFactory.decodeFile(fileName);
                 String p1 = et_ms.getText().toString();
                 String p2 = et_xf.getText().toString();
                 String p3 = et_rl.getText().toString();
@@ -189,15 +203,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if(p2.equals(""))p2="--";
                     if(p3.equals(""))p3="--";
                     if(p4.equals(""))p4="--";
-                    myDAO.insertInfo(mymap,p1,p2,p3,p4,p5);  //第2参数转型
-                }
-            }
-            else if (v.getId()==R.id.ib){
-                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    //没有权限时请求该权限：出现是否型对话框由用户选择是否授权
-                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                } else {
-                    fun();
+                    myDAO.insertInfo(image,p1,p2,p3,p4,p5);  //第2参数转型
                 }
             }
             else if (v.getId()==R.id.ib_clc){
@@ -208,14 +214,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 et_date.setText(null);
                 selId=null;
             }
-            else{   //单击了修改或删除按钮
+            else if(v.getId()!=R.id.ib){   //单击了修改或删除按钮
                 Toast.makeText(getApplicationContext(),"请先选择记录！",Toast.LENGTH_SHORT).show();
             }
         }
+
+        if (v.getId()==R.id.ib){
+            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                //没有权限时请求该权限：出现是否型对话框由用户选择是否授权
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            } else {
+                fun();
+            }
+        }
+
         displayRecords();//刷新ListView对象
     }
 
-    ByteArrayOutputStream get_image(Intent data){
+    void get_image(Intent data){
         Bundle bundle=data.getExtras();
         Bitmap bitmap=(Bitmap) bundle.get("data");
         FileOutputStream fos=null;
@@ -236,7 +252,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pic.setImageBitmap(bitmap);
         ByteArrayOutputStream os=new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG,100,os);
-        return os;
+        image = os.toByteArray();
+//        myDAO.InsertImg(bitmap);
     }
 
     void fun(){
@@ -250,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==1){
             if(resultCode==RESULT_OK){
-                ByteArrayOutputStream myos=get_image(data);
+                get_image(data);
             }
         }
     }
