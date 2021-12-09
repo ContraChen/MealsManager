@@ -10,7 +10,7 @@
         android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textSize="25sp" />
+        android:textSize="20sp" />
 
     <ImageView
         android:id="@+id/l_image"
@@ -23,17 +23,17 @@
         android:id="@+id/l_meal"
         android:layout_width="81dp"
         android:layout_height="wrap_content"
-        android:textSize="25sp" />
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/l_cost"
         android:layout_width="57dp"
         android:layout_height="wrap_content"
-        android:textSize="25sp" />
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/l_heat"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:layout_width="50dp"
         android:layout_height="wrap_content"/>
 
@@ -42,13 +42,13 @@
         android:layout_width="76dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textSize="25sp" />
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/l_time"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textSize="25sp" />
+        android:textSize="15sp" />
 
 </LinearLayout>

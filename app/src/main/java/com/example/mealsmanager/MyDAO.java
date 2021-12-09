@@ -4,7 +4,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.util.Log;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 public class MyDAO {
     private SQLiteDatabase myDb;  //类的成员
@@ -12,7 +16,7 @@ public class MyDAO {
 
     public MyDAO(Context context) {  //构造方法，参数为上下文对象
         //第1参数为上下文，第2参数为数据库名
-        dbHelper = new DbHelper(context,"test.db",null,1);
+        dbHelper = new DbHelper(context,"test2.db",null,1);
     }
 
     public Cursor allQuery(){    //查询所有记录
@@ -25,9 +29,12 @@ public class MyDAO {
         return cursor.getCount();
     }
 
-    public void insertInfo(String meal,String cost,String heat,String date,String time){  //插入记录
+    public void insertInfo(Bitmap bitmap,String meal,String cost,String heat,String date,String time){  //插入记录
         myDb = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
+        ByteArrayOutputStream os=new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100,os);
+        values.put("image",os.toByteArray());
         values.put("meal", meal);
         values.put("cost", cost);
         values.put("heat", heat);
@@ -49,9 +56,12 @@ public class MyDAO {
             Log.i("myDbDemo", "数据未删除！");
     }
 
-    public void updateInfo(String meal,String cost,String heat,String date,String time,String selId){  //修改记录
+    public void updateInfo(Bitmap bitmap,String meal,String cost,String heat,String date,String time,String selId){  //修改记录
         //方法中的第三参数用于修改选定的记录
         ContentValues values = new ContentValues();
+        ByteArrayOutputStream os=new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100,os);
+        values.put("image",os.toByteArray());
         values.put("meal", meal);
         values.put("cost", cost);
         values.put("heat", heat);

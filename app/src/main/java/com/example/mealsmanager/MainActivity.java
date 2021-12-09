@@ -6,9 +6,11 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -23,9 +25,12 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +53,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText et_date;
     private  String selId=null;  //选择项id
 
+    String basePath = Environment.getExternalStorageDirectory().getPath();
+    String filePath = basePath + "/myImage";
+    String fileName=filePath+"/111.jpg";
+//    Bitmap mymap = BitmapFactory.decodeFile(fileName);
+//    File myfile = new File(fileName);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,8 +77,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         myDAO = new MyDAO(this);  //创建数据库访问对象
         if(myDAO.getRecordsNumber()==0) {  //防止重复运行时重复插入记录
-            myDAO.insertInfo("rice","2","300","1208","Lunch");   //插入记录
-            myDAO.insertInfo("noodle","4","200","1209","Supper"); //插入记录
+//            Bitmap mymap = BitmapFactory.decodeFile(fileName);
+            Resources res = MainActivity.this.getResources();
+            Bitmap init_bmp= BitmapFactory.decodeResource(res, R.raw.header);
+            myDAO.insertInfo(init_bmp,"rice","2","300","1208","Lunch");   //插入记录
+            myDAO.insertInfo(init_bmp,"noodle","4","200","1209","Supper"); //插入记录
         }
         displayRecords();   //显示记录
     }
@@ -78,15 +92,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Cursor cursor = myDAO.allQuery();
         while (cursor.moveToNext()){
             String id=cursor.getString(0);  //获取字段值
-            String meal=cursor.getString(1);
-            String cost=cursor.getString(2);
-            String heat=cursor.getString(3);
-            String date=cursor.getString(4);
-            String time=cursor.getString(5);
+            byte[] image=cursor.getBlob(cursor.getColumnIndex("image"));
+            String meal=cursor.getString(2);
+            String cost=cursor.getString(3);
+            String heat=cursor.getString(4);
+            String date=cursor.getString(5);
+            String time=cursor.getString(6);
             //int age=cursor.getInt(2);
 //            int age=cursor.getInt(cursor.getColumnIndex("age"));//推荐此种方式
             listItem=new HashMap<String,Object>(); //必须在循环体里新建
+            Bitmap mymap = BitmapFactory.decodeFile(fileName);
+            ByteArrayOutputStream os=new ByteArrayOutputStream();
+            mymap.compress(Bitmap.CompressFormat.PNG,100,os);
             listItem.put("_id", id);  //第1参数为键名，第2参数为键值
+            listItem.put("image",image);
             listItem.put("meal", meal);
             listItem.put("cost", cost);
             listItem.put("heat", heat);
@@ -104,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Map<String,Object> rec= (Map<String, Object>) listAdapter.getItem(position);  //从适配器取记录
+
                 et_ms.setText(rec.get("meal").toString());  //刷新文本框
                 et_xf.setText(rec.get("cost").toString());
                 et_rl.setText(rec.get("heat").toString());
@@ -122,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if(selId!=null) {  //选择了列表项后，可以增加/删除/修改
+            Bitmap mymap = BitmapFactory.decodeFile(fileName);
             String p1 = et_ms.getText().toString().trim();
             String p2 = et_xf.getText().toString().trim();
             String p3 = et_rl.getText().toString().trim();
@@ -129,10 +150,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String p5 = sp.getSelectedItem().toString().trim();
             switch (v.getId()){
                 case  R.id.ib_add:
-                    myDAO.insertInfo(p1,p2,p3,p4,p5);
+                    myDAO.insertInfo(mymap,p1,p2,p3,p4,p5);
                     break;
                 case  R.id.ib_modify:
-                    myDAO.updateInfo(p1,p2,p3,p4,p5,selId);
+                    myDAO.updateInfo(mymap,p1,p2,p3,p4,p5,selId);
                     Toast.makeText(getApplicationContext(),"更新成功！",Toast.LENGTH_SHORT).show();
                     break;
                 case  R.id.ib_del:
@@ -155,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }else{  //未选择列表项
             if(v.getId()==R.id.ib_add) {  //单击添加按钮
+                Bitmap mymap = BitmapFactory.decodeFile(fileName);
                 String p1 = et_ms.getText().toString();
                 String p2 = et_xf.getText().toString();
                 String p3 = et_rl.getText().toString();
@@ -167,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if(p2.equals(""))p2="--";
                     if(p3.equals(""))p3="--";
                     if(p4.equals(""))p4="--";
-                    myDAO.insertInfo(p1,p2,p3,p4,p5);  //第2参数转型
+                    myDAO.insertInfo(mymap,p1,p2,p3,p4,p5);  //第2参数转型
                 }
             }
             else if (v.getId()==R.id.ib){
@@ -193,15 +215,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         displayRecords();//刷新ListView对象
     }
 
-    void get_image(Intent data){
-        String basePath = Environment.getExternalStorageDirectory().getPath();
-        String filePath = basePath + "/myImage";
+    ByteArrayOutputStream get_image(Intent data){
         Bundle bundle=data.getExtras();
         Bitmap bitmap=(Bitmap) bundle.get("data");
         FileOutputStream fos=null;
         File file=new File(filePath);
         file.mkdir();
-        String fileName=filePath+"/111.jpg";
         try {
             fos=new FileOutputStream(fileName);
             bitmap.compress(Bitmap.CompressFormat.JPEG,100,fos);
@@ -215,6 +234,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         pic.setImageBitmap(bitmap);
+        ByteArrayOutputStream os=new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100,os);
+        return os;
     }
 
     void fun(){
@@ -228,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==1){
             if(resultCode==RESULT_OK){
-                get_image(data);
+                ByteArrayOutputStream myos=get_image(data);
             }
         }
     }
