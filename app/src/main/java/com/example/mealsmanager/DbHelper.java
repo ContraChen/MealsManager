@@ -27,10 +27,10 @@ public class DbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    /*
-    long主键能通过自增序列来赋
-    */
-    public static  long insert(SQLiteDatabase db, String TableName, ContentValues values){
-        return db.insert(TableName,null,values);
-    }
+//    /*
+//    long主键能通过自增序列来赋
+//    */
+//    public static  long insert(SQLiteDatabase db, String TableName, ContentValues values){
+//        return db.insert(TableName,null,values);
+//    }
 }

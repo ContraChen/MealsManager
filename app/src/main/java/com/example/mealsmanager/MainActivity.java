@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Blob;
@@ -93,6 +94,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         displayRecords();   //显示记录
     }
 
+    /* 获得图片，并进行适当的 缩放。 图片太大的话，是无法展示的。 */
+    private Bitmap getBitMapFromPath(String imageFilePath) {
+        Display currentDisplay = getWindowManager().getDefaultDisplay();
+        int dw = currentDisplay.getWidth();
+        int dh = currentDisplay.getHeight();
+        BitmapFactory.Options bmpFactoryOptions = new BitmapFactory.Options();
+        bmpFactoryOptions.inJustDecodeBounds = true;
+        Bitmap bmp = BitmapFactory.decodeFile(imageFilePath,
+                bmpFactoryOptions);
+        int heightRatio = (int) Math.ceil(bmpFactoryOptions.outHeight
+                / (float) dh);
+        int widthRatio = (int) Math.ceil(bmpFactoryOptions.outWidth
+                / (float) dw);
+        if (heightRatio > 1 && widthRatio > 1) {
+            if (heightRatio > widthRatio) {
+                bmpFactoryOptions.inSampleSize = heightRatio;
+            } else {
+                bmpFactoryOptions.inSampleSize = widthRatio;
+            }
+        }
+        bmpFactoryOptions.inJustDecodeBounds = false;
+        bmp = BitmapFactory.decodeFile(imageFilePath, bmpFactoryOptions);
+        return bmp;
+    }
+
     public void displayRecords(){  //显示记录方法定义
         listView = (ListView)findViewById(R.id.lv_food);
         listData = new ArrayList<Map<String,Object>>();
@@ -101,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         while (cursor.moveToNext()){
             String id=cursor.getString(0);  //获取字段值
             byte[] myimage=cursor.getBlob(cursor.getColumnIndex("image"));
+//            byte[] myimage=cursor.getBlob(1);
             String meal=cursor.getString(2);
             String cost=cursor.getString(3);
             String heat=cursor.getString(4);
@@ -109,12 +136,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //int age=cursor.getInt(2);
 //            int age=cursor.getInt(cursor.getColumnIndex("age"));//推荐此种方式
             listItem=new HashMap<String,Object>(); //必须在循环体里新建
-            if(null != image && image.length > 0){
-                photo = BitmapFactory.decodeByteArray(image, 0, image.length);
-                listItem.put("Image", photo);
+            if(null != myimage && myimage.length > 0){
+                photo=getBitMapFromPath(fileName);
+//                BitmapFactory.Options opts = new BitmapFactory.Options();
+//                opts.inJustDecodeBounds = false;//为true时，返回的bitmap为null
+//                photo = BitmapFactory.decodeByteArray(myimage, 0, myimage.length, opts);
+////                photo = BitmapFactory.decodeByteArray(myimage, 0, myimage.length);
+//                ByteArrayOutputStream os=new ByteArrayOutputStream();
+//                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.raw.header);
+//                bitmap.compress(Bitmap.CompressFormat.JPEG,50,os);
+                File file = new File(fileName);
+//                photo = BitmapFactory.decodeByteArray(myimage, 0, myimage.length);
+
+                listItem.put("image",file);
             }
             else{
-                listItem.put("Image", R.mipmap.ic_launcher);
+                listItem.put("image", R.mipmap.ic_launcher);
             }
 //            Bitmap mymap = BitmapFactory.decodeFile(fileName);
 //            ByteArrayOutputStream os=new ByteArrayOutputStream();
@@ -137,7 +174,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Map<String,Object> rec= (Map<String, Object>) listAdapter.getItem(position);  //从适配器取记录
-
                 et_ms.setText(rec.get("meal").toString());  //刷新文本框
                 et_xf.setText(rec.get("cost").toString());
                 et_rl.setText(rec.get("heat").toString());
@@ -153,7 +189,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    @Override
+
+//    public static void saveBitmapAsPng(Bitmap bmp,File f) {
+//        try {
+//            FileOutputStream out = new FileOutputStream(f);
+//            bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
+//            out.flush();
+//            out.close();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+
+        @Override
     public void onClick(View v) {
         if(selId!=null) {  //选择了列表项后，可以增加/删除/修改
 //            Bitmap mymap = BitmapFactory.decodeFile(fileName);
@@ -164,10 +214,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String p5 = sp.getSelectedItem().toString().trim();
             switch (v.getId()){
                 case  R.id.ib_add:
-                    myDAO.insertInfo(image,p1,p2,p3,p4,p5);
+                    ByteArrayOutputStream os1=new ByteArrayOutputStream();
+                    Bitmap bp1 = ((BitmapDrawable)pic.getDrawable()).getBitmap();
+                    bp1.compress(Bitmap.CompressFormat.PNG,100,os1);
+                    byte[] a1=os1.toByteArray();
+                    myDAO.insertInfo(a1,p1,p2,p3,p4,p5);
                     break;
                 case  R.id.ib_modify:
-                    myDAO.updateInfo(image,p1,p2,p3,p4,p5,selId);
+                    ByteArrayOutputStream os2=new ByteArrayOutputStream();
+                    Bitmap bp2 = ((BitmapDrawable)pic.getDrawable()).getBitmap();
+                    bp2.compress(Bitmap.CompressFormat.PNG,100,os2);
+                    byte[] a=os2.toByteArray();
+                    myDAO.updateInfo(a,p1,p2,p3,p4,p5,selId);
                     Toast.makeText(getApplicationContext(),"更新成功！",Toast.LENGTH_SHORT).show();
                     break;
                 case  R.id.ib_del:
@@ -231,6 +289,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         displayRecords();//刷新ListView对象
     }
 
+
     void get_image(Intent data){
         Bundle bundle=data.getExtras();
         Bitmap bitmap=(Bitmap) bundle.get("data");
@@ -251,7 +310,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         pic.setImageBitmap(bitmap);
         ByteArrayOutputStream os=new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG,100,os);
+        bitmap.compress(Bitmap.CompressFormat.PNG,50,os);
+//        Bitmap imagemap =getBitMapFromPath(fileName);
         image = os.toByteArray();
 //        myDAO.InsertImg(bitmap);
     }
