@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
@@ -60,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private  String selId=null;  //选择项id
 
     String defaultPath = Environment.getExternalStorageDirectory().getPath();
-//    String defaultPath = defaultPath + "/myImageDir";
     String defaultName=defaultPath+ "/myImage"+"/111.jpg";
 //    Bitmap mymap = BitmapFactory.decodeFile(fileName);
 //    File myfile = new File(fileName);
@@ -91,8 +91,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            init_bmp.compress(Bitmap.CompressFormat.PNG, 100, ost);
 //            byte[] header = ost.toByteArray();
 //            byte[] header=null;
-            myDAO.insertInfo(null,"rice","2","300","1208","Lunch");   //插入记录
-            myDAO.insertInfo(null,"noodle","4","200","1209","Supper"); //插入记录
+            myDAO.insertInfo(null,"rice","2","300","2021/12/08","Lunch");   //插入记录
+            myDAO.insertInfo(null,"noodle","4","200","2021/12/09","Supper"); //插入记录
         }
         displayRecords();   //显示记录
     }
@@ -131,8 +131,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                listItem.put("image", R.mipmap.ic_launcher);
             }
             else{
-                File file = new File(defaultName);
-                listItem.put("image",file);
+//                File file = new File(defaultName);
+                listItem.put("image",R.raw.food);
             }
 //            Bitmap mymap = BitmapFactory.decodeFile(fileName);
 //            ByteArrayOutputStream os=new ByteArrayOutputStream();
@@ -143,21 +143,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             listItem.put("heat", heat);
             listItem.put("date", date);
             listItem.put("time", time);
+            listItem.put("path", name);
             listData.add(listItem);   //添加一条记录
         }
         listAdapter = new SimpleAdapter(this,
                 listData,
                 R.layout.listview, //自行创建的列表项布局
-                new String[]{"_id","image","meal","cost","heat","date","time"},
-                new int[]{R.id.l_id,R.id.l_image,R.id.l_meal,R.id.l_cost,R.id.l_heat,R.id.l_date,R.id.l_time});
+                new String[]{"_id","image","meal","cost","heat","date","time","path"},
+                new int[]{R.id.l_id,R.id.l_image,R.id.l_meal,R.id.l_cost,R.id.l_heat,R.id.l_date,R.id.l_time,R.id.l_path});
         listView.setAdapter(listAdapter);  //应用适配器
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {  //列表项监听
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Map<String,Object> rec= (Map<String, Object>) listAdapter.getItem(position);  //从适配器取记录
-//                String newpath=rec.get("image").toString();
-//                Bitmap bitmap = BitmapFactory.decodeFile(newpath);
-//                pic.setImageBitmap(bitmap);
+                TextView thepath = view.findViewById(R.id.l_path);
+                String mypath = thepath.getText().toString();
+                if(mypath!="") {
+                    Bitmap bitmap = BitmapFactory.decodeFile(mypath);
+                    pic.setImageBitmap(bitmap);
+                }
+//                else
+//                {
+//                   pic.setImageBitmap(null);
+//                }
+//                else{
+//                    Bitmap bitmap = BitmapFactory.decodeFile(defaultName);
+//                    pic.setImageBitmap(bitmap);
+//                }
                 et_ms.setText(rec.get("meal").toString());  //刷新文本框
                 et_xf.setText(rec.get("cost").toString());
                 et_rl.setText(rec.get("heat").toString());
@@ -268,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imagename=fileName;
         try {
             fos=new FileOutputStream(fileName);
-            bitmap.compress(Bitmap.CompressFormat.JPEG,100,fos);
+            bitmap.compress(Bitmap.CompressFormat.PNG,100,fos);
         }catch (Exception e){
             e.printStackTrace();
         }finally {
