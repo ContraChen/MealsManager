@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.database.DefaultDatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -30,10 +31,12 @@ import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Blob;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,11 +59,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText et_date;
     private  String selId=null;  //选择项id
 
-    String basePath = Environment.getExternalStorageDirectory().getPath();
-    String filePath = basePath + "/myImage";
-    String fileName=filePath+"/111.jpg";
+    String defaultPath = Environment.getExternalStorageDirectory().getPath();
+//    String defaultPath = defaultPath + "/myImageDir";
+    String defaultName=defaultPath+ "/myImage"+"/111.jpg";
 //    Bitmap mymap = BitmapFactory.decodeFile(fileName);
 //    File myfile = new File(fileName);
+    String imagename=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,88 +90,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            ByteArrayOutputStream ost = new ByteArrayOutputStream();
 //            init_bmp.compress(Bitmap.CompressFormat.PNG, 100, ost);
 //            byte[] header = ost.toByteArray();
-            byte[] header=null;
-            myDAO.insertInfo(header,"rice","2","300","1208","Lunch");   //插入记录
-            myDAO.insertInfo(header,"noodle","4","200","1209","Supper"); //插入记录
+//            byte[] header=null;
+            myDAO.insertInfo(null,"rice","2","300","1208","Lunch");   //插入记录
+            myDAO.insertInfo(null,"noodle","4","200","1209","Supper"); //插入记录
         }
         displayRecords();   //显示记录
-    }
-
-//    /* 获得图片，并进行适当的 缩放。 图片太大的话，是无法展示的。 */
-//    private Bitmap getBitMapFromPath(String imageFilePath) {
-//        Display currentDisplay = getWindowManager().getDefaultDisplay();
-//        int dw = currentDisplay.getWidth();
-//        int dh = currentDisplay.getHeight();
-//        BitmapFactory.Options bmpFactoryOptions = new BitmapFactory.Options();
-//        bmpFactoryOptions.inJustDecodeBounds = true;
-//        Bitmap bmp = BitmapFactory.decodeFile(imageFilePath,
-//                bmpFactoryOptions);
-//        int heightRatio = (int) Math.ceil(bmpFactoryOptions.outHeight
-//                / (float) dh);
-//        int widthRatio = (int) Math.ceil(bmpFactoryOptions.outWidth
-//                / (float) dw);
-//        if (heightRatio > 1 && widthRatio > 1) {
-//            if (heightRatio > widthRatio) {
-//                bmpFactoryOptions.inSampleSize = heightRatio;
-//            } else {
-//                bmpFactoryOptions.inSampleSize = widthRatio;
-//            }
-//        }
-//        bmpFactoryOptions.inJustDecodeBounds = false;
-//        bmp = BitmapFactory.decodeFile(imageFilePath, bmpFactoryOptions);
-//        return bmp;
-//    }
-
-    public Bitmap Bytes2Bitmap(byte[] b) {
-        if (b.length != 0) {
-            return BitmapFactory.decodeByteArray(b, 0, b.length);
-        } else {
-            return null;
-        }
-    }
-
-    public byte[] Bitmap2Bytes(Bitmap bm) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        return baos.toByteArray();
     }
 
     public void displayRecords(){  //显示记录方法定义
         listView = (ListView)findViewById(R.id.lv_food);
         listData = new ArrayList<Map<String,Object>>();
-        Bitmap photo=null;
+//        Bitmap photo=null;
         Cursor cursor = myDAO.allQuery();
         while (cursor.moveToNext()){
             String id=cursor.getString(0);  //获取字段值
-//            byte[] myimage=cursor.getBlob(cursor.getColumnIndex("image"));
-            byte[] myimage=cursor.getBlob(1);
+            String name=cursor.getString(1);
             String meal=cursor.getString(2);
             String cost=cursor.getString(3);
             String heat=cursor.getString(4);
             String date=cursor.getString(5);
             String time=cursor.getString(6);
-            //int age=cursor.getInt(2);
 //            int age=cursor.getInt(cursor.getColumnIndex("age"));//推荐此种方式
             listItem=new HashMap<String,Object>(); //必须在循环体里新建
-            if(null != myimage && myimage.length > 0){
+            if(null != name){
 //                photo=getBitMapFromPath(fileName);
 //                BitmapFactory.Options opts = new BitmapFactory.Options();
 //                opts.inJustDecodeBounds = false;//为true时，返回的bitmap为null
 //                photo = BitmapFactory.decodeByteArray(myimage, 0, myimage.length, opts);
 ////                photo = BitmapFactory.decodeByteArray(myimage, 0, myimage.length);
 //                ByteArrayOutputStream os=new ByteArrayOutputStream();
-                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.raw.header);
+//                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.raw.header);
 //                bitmap.compress(Bitmap.CompressFormat.JPEG,50,os);
 //                File file = new File(fileName);
 //                photo = BitmapFactory.decodeByteArray(myimage, 0, myimage.length);
 //                photo=Bytes2Bitmap(myimage);
-                byte[] a=Bitmap2Bytes(bitmap);
-                photo=Bytes2Bitmap(a);
-
-                listItem.put("image",photo);
+//                byte[] a=Bitmap2Bytes(bitmap);
+//                photo=Bytes2Bitmap(a);
+                File file = new File(name);
+                listItem.put("image",file);
+//                listItem.put("image", R.mipmap.ic_launcher);
             }
             else{
-                listItem.put("image", R.mipmap.ic_launcher);
+                File file = new File(defaultName);
+                listItem.put("image",file);
             }
 //            Bitmap mymap = BitmapFactory.decodeFile(fileName);
 //            ByteArrayOutputStream os=new ByteArrayOutputStream();
@@ -190,7 +155,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Map<String,Object> rec= (Map<String, Object>) listAdapter.getItem(position);  //从适配器取记录
-//                pic.setImageBitmap((Bitmap)rec.get("image"));
+//                String newpath=rec.get("image").toString();
+//                Bitmap bitmap = BitmapFactory.decodeFile(newpath);
+//                pic.setImageBitmap(bitmap);
                 et_ms.setText(rec.get("meal").toString());  //刷新文本框
                 et_xf.setText(rec.get("cost").toString());
                 et_rl.setText(rec.get("heat").toString());
@@ -206,25 +173,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-
-//    public static void saveBitmapAsPng(Bitmap bmp,File f) {
-//        try {
-//            FileOutputStream out = new FileOutputStream(f);
-//            bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
-//            out.flush();
-//            out.close();
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-
-        @Override
+    @Override
     public void onClick(View v) {
         if(selId!=null) {  //选择了列表项后，可以增加/删除/修改
-            Bitmap mymap = BitmapFactory.decodeFile(fileName);
-//            Bitmap bp2 = ((BitmapDrawable)pic.getDrawable()).getBitmap();
             String p1 = et_ms.getText().toString().trim();
             String p2 = et_xf.getText().toString().trim();
             String p3 = et_rl.getText().toString().trim();
@@ -232,22 +183,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String p5 = sp.getSelectedItem().toString().trim();
             switch (v.getId()){
                 case  R.id.ib_add:
-//                    Bitmap bp1 = ((BitmapDrawable)pic.getDrawable()).getBitmap();
-                    byte[] a1=Bitmap2Bytes(mymap);
-                    myDAO.insertInfo(a1,p1,p2,p3,p4,p5);
+                    myDAO.insertInfo(imagename,p1,p2,p3,p4,p5);
                     break;
                 case  R.id.ib_modify:
-//                    ByteArrayOutputStream os2=new ByteArrayOutputStream();
-//                    Bitmap bp2 = ((BitmapDrawable)pic.getDrawable()).getBitmap();
-//                    bp2.compress(Bitmap.CompressFormat.PNG,100,os2);
-//                    byte[] a=os2.toByteArray();
-                    byte[] a2=Bitmap2Bytes(mymap);
-                    myDAO.updateInfo(a2,p1,p2,p3,p4,p5,selId);
+                    myDAO.updateInfo(imagename,p1,p2,p3,p4,p5,selId);
                     Toast.makeText(getApplicationContext(),"更新成功！",Toast.LENGTH_SHORT).show();
                     break;
                 case  R.id.ib_del:
                     myDAO.deleteInfo(selId);
                     Toast.makeText(getApplicationContext(),"删除成功！",Toast.LENGTH_SHORT).show();
+//                    pic.setImageBitmap(null);
                     et_ms.setText(null);
                     et_xf.setText(null);
                     et_rl.setText(null);
@@ -265,8 +210,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }else{  //未选择列表项
             if(v.getId()==R.id.ib_add) {  //单击添加按钮
-                Bitmap mymap = BitmapFactory.decodeFile(fileName);
-                byte[] a3=Bitmap2Bytes(mymap);
+//                Bitmap mymap = BitmapFactory.decodeFile(fileName);
+//                byte[] a3=Bitmap2Bytes(mymap);
                 String p1 = et_ms.getText().toString();
                 String p2 = et_xf.getText().toString();
                 String p3 = et_rl.getText().toString();
@@ -279,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if(p2.equals(""))p2="--";
                     if(p3.equals(""))p3="--";
                     if(p4.equals(""))p4="--";
-                    myDAO.insertInfo(a3,p1,p2,p3,p4,p5);  //第2参数转型
+                    myDAO.insertInfo(imagename,p1,p2,p3,p4,p5);  //第2参数转型
                 }
             }
             else if (v.getId()==R.id.ib_clc){
@@ -310,11 +255,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     void get_image(Intent data){
+        String basePath = Environment.getExternalStorageDirectory().getPath();
+        String filePath = basePath + "/myImage/";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String date=sdf.format(new java.util.Date());
         Bundle bundle=data.getExtras();
         Bitmap bitmap=(Bitmap) bundle.get("data");
         FileOutputStream fos=null;
         File file=new File(filePath);
         file.mkdir();
+        String fileName=filePath+date+".jpg";
+        imagename=fileName;
         try {
             fos=new FileOutputStream(fileName);
             bitmap.compress(Bitmap.CompressFormat.JPEG,100,fos);
@@ -328,11 +279,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         pic.setImageBitmap(bitmap);
-//        ByteArrayOutputStream os=new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.PNG,50,os);
-////        Bitmap imagemap =getBitMapFromPath(fileName);
-//        image = os.toByteArray();
-//        myDAO.InsertImg(bitmap);
     }
 
     void fun(){
@@ -341,6 +287,56 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivityForResult(intent,1);
     }
 
+
+//    /* 获得图片，并进行适当的 缩放。 图片太大的话，是无法展示的。 */
+//    private Bitmap getBitMapFromPath(String imageFilePath) {
+//        Display currentDisplay = getWindowManager().getDefaultDisplay();
+//        int dw = currentDisplay.getWidth();
+//        int dh = currentDisplay.getHeight();
+//        BitmapFactory.Options bmpFactoryOptions = new BitmapFactory.Options();
+//        bmpFactoryOptions.inJustDecodeBounds = true;
+//        Bitmap bmp = BitmapFactory.decodeFile(imageFilePath,
+//                bmpFactoryOptions);
+//        int heightRatio = (int) Math.ceil(bmpFactoryOptions.outHeight
+//                / (float) dh);
+//        int widthRatio = (int) Math.ceil(bmpFactoryOptions.outWidth
+//                / (float) dw);
+//        if (heightRatio > 1 && widthRatio > 1) {
+//            if (heightRatio > widthRatio) {
+//                bmpFactoryOptions.inSampleSize = heightRatio;
+//            } else {
+//                bmpFactoryOptions.inSampleSize = widthRatio;
+//            }
+//        }
+//        bmpFactoryOptions.inJustDecodeBounds = false;
+//        bmp = BitmapFactory.decodeFile(imageFilePath, bmpFactoryOptions);
+//        return bmp;
+//    }
+
+//    public Bitmap Bytes2Bitmap(byte[] b) {
+//        if (b.length != 0) {
+//            return BitmapFactory.decodeByteArray(b, 0, b.length);
+//        } else {
+//            return null;
+//        }
+//    }
+//
+//    public byte[] Bitmap2Bytes(Bitmap bm) {
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
+//        return baos.toByteArray();
+//    }
+//    public static void saveBitmapAsPng(Bitmap bmp,File f) {
+//        try {
+//            FileOutputStream out = new FileOutputStream(f);
+//            bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
+//            out.flush();
+//            out.close();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

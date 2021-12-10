@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -17,7 +16,7 @@ public class MyDAO {
 
     public MyDAO(Context context) {  //构造方法，参数为上下文对象
         //第1参数为上下文，第2参数为数据库名
-        dbHelper = new DbHelper(context,"work.db",null,1);
+        dbHelper = new DbHelper(context,"work2.db",null,1);
     }
 
     public Cursor allQuery(){    //查询所有记录
@@ -30,7 +29,7 @@ public class MyDAO {
         return cursor.getCount();
     }
 
-    public void insertInfo(byte[] image,String meal,String cost,String heat,String date,String time){  //插入记录
+    public void insertInfo(String image,String meal,String cost,String heat,String date,String time){  //插入记录
         myDb = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
 //        ByteArrayOutputStream os=new ByteArrayOutputStream();
@@ -67,7 +66,7 @@ public class MyDAO {
 //        _id=DbHelper.insert(myDb,"user",values);  //主键使用long类型
 //    }
 
-    public void updateInfo(byte[] image,String meal,String cost,String heat,String date,String time,String selId){  //修改记录
+    public void updateInfo(String image,String meal,String cost,String heat,String date,String time,String selId){  //修改记录
         //方法中的第三参数用于修改选定的记录
         ContentValues values = new ContentValues();
 //        ByteArrayOutputStream os=new ByteArrayOutputStream();
