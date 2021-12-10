@@ -13,10 +13,18 @@
         android:layout_alignParentLeft="true"
         android:layout_marginRight="5dip">
 
+        <TextView
+            android:id="@+id/l_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="12138"
+            android:textSize="5dip" />
+
         <ImageView
             android:id="@+id/l_image"
-            android:layout_width="88dp"
-            android:layout_height="75dp"></ImageView>
+            android:layout_width="80dp"
+            android:layout_height="73dp"></ImageView>
+
     </LinearLayout>
 
     <TextView
@@ -36,10 +44,10 @@
 
     <TextView
         android:id="@+id/l_cost"
-        android:layout_width="67dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/l_meal"
-        android:layout_marginLeft="0dp"
+        android:layout_marginLeft="1dp"
         android:layout_marginTop="0dp"
         android:layout_toRightOf="@+id/s_photo"
         android:text="120￥"
@@ -84,34 +92,21 @@
 
     <TextView
         android:id="@+id/l_path"
-        android:layout_width="255dp"
+        android:layout_width="297dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/l_cost"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginStart="50dp"
-        android:layout_marginLeft="50dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="2dp"
-        android:layout_marginRight="2dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="3dp"
+        android:layout_marginRight="3dp"
         android:layout_toEndOf="@+id/s_photo"
         android:layout_toRightOf="@+id/s_photo"
         android:gravity="right"
         android:text="MIUI/DMIC"
         android:textSize="10dip" />
-
-    <TextView
-        android:id="@+id/l_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/l_cost"
-        android:layout_marginStart="0dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="1dp"
-        android:layout_toEndOf="@+id/s_photo"
-        android:layout_toRightOf="@+id/s_photo"
-        android:text="12138"
-        android:textSize="15dip" />
 
     <TextView
         android:id="@+id/l_time"

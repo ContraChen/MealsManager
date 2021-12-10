@@ -3,6 +3,8 @@ package com.example.mealsmanager;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -14,6 +16,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -64,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     String defaultName=defaultPath+ "/myImage"+"/111.jpg";
 //    Bitmap mymap = BitmapFactory.decodeFile(fileName);
 //    File myfile = new File(fileName);
-    String imagename=null;
+    String imagename="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ib_modify=(ImageButton)findViewById(R.id.ib_modify);ib_modify.setOnClickListener(this);
         ib_clc=(ImageButton)findViewById(R.id.ib_clc);ib_clc.setOnClickListener(this);
         sp=(Spinner)findViewById(R.id.sp);
-
+        pic=findViewById(R.id.pic);
         et_ms=(EditText)findViewById(R.id.et_ms);
         et_xf=(EditText)findViewById(R.id.et_xf);
         et_rl=(EditText)findViewById(R.id.et_rl);
@@ -132,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             else{
 //                File file = new File(defaultName);
-                listItem.put("image",R.raw.food);
+                listItem.put("image",R.drawable.food);
             }
 //            Bitmap mymap = BitmapFactory.decodeFile(fileName);
 //            ByteArrayOutputStream os=new ByteArrayOutputStream();
@@ -162,10 +165,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Bitmap bitmap = BitmapFactory.decodeFile(mypath);
                     pic.setImageBitmap(bitmap);
                 }
-//                else
-//                {
-//                   pic.setImageBitmap(null);
-//                }
+                else
+                {
+                    Drawable drawable = ContextCompat.getDrawable(MainActivity.this, R.drawable.food);
+                    pic.setImageDrawable(drawable);
+                }
 //                else{
 //                    Bitmap bitmap = BitmapFactory.decodeFile(defaultName);
 //                    pic.setImageBitmap(bitmap);
@@ -294,7 +298,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     void fun(){
-        pic=findViewById(R.id.pic);
         Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //调用系统相机程序
         startActivityForResult(intent,1);
     }
