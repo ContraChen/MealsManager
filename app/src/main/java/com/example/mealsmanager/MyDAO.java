@@ -16,7 +16,7 @@ public class MyDAO {
 
     public MyDAO(Context context) {  //构造方法，参数为上下文对象
         //第1参数为上下文，第2参数为数据库名
-        dbHelper = new DbHelper(context,"workz.db",null,1);
+        dbHelper = new DbHelper(context,"work.db",null,1);
     }
 
     public Cursor allQuery(){    //查询所有记录

@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            byte[] header = ost.toByteArray();
 //            byte[] header=null;
             myDAO.insertInfo(null,"rice","2","300","2021/12/08","Lunch");   //插入记录
-            myDAO.insertInfo(null,"noodle","4","200","2021/12/09","Supper"); //插入记录
+//            myDAO.insertInfo(null,"noodle","4","200","2021/12/09","Supper"); //插入记录
         }
         displayRecords();   //显示记录
     }
@@ -162,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 TextView thepath = view.findViewById(R.id.l_path);
                 String mypath = thepath.getText().toString();
                 if(mypath!="") {
+                    imagename=mypath;
                     Bitmap bitmap = BitmapFactory.decodeFile(mypath);
                     pic.setImageBitmap(bitmap);
                 }
